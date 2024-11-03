@@ -14,7 +14,25 @@ public class EmployeesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<GetEmployeeDto>>> Get(int id)
     {
-        throw new NotImplementedException();
+        var employee = new GetEmployeeDto
+        {
+            Id = 1,
+            FirstName = "LeBron",
+            LastName = "James",
+            Salary = 75420.99m,
+            DateOfBirth = new DateTime(1984, 12, 30)
+        };
+
+        if (id == 1)
+        {
+            return new ApiResponse<GetEmployeeDto>
+            {
+                Data = employee,
+                Success = true
+            };
+        }
+
+        return NotFound();
     }
 
     [SwaggerOperation(Summary = "Get all employees")]
