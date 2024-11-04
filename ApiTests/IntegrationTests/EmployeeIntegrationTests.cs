@@ -94,6 +94,9 @@ public class EmployeeIntegrationTests : IntegrationTest
             FirstName = "LeBron",
             LastName = "James",
             Salary = 75420.99m,
+            PaycheckGrossAmount = 75420.99m / 26m,
+            PaycheckBenefitsCost = 1000m * 12m / 26m,
+            PaycheckNetAmount = (75420.99m / 26m) - (1000m * 12m / 26m),
             DateOfBirth = new DateTime(1984, 12, 30)
         };
         await response.ShouldReturn(HttpStatusCode.OK, employee);

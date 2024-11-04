@@ -1,8 +1,13 @@
+using Api.Infrastructure;
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddDbContext<BenefitsDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,6 +37,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    // Seed database with data for development and testing
+    await using var scope = app.Services.CreateAsyncScope();
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<BenefitsDbContext>();
+    BenefitsDbContextInitializer.Initialize(dbContext);
 }
 
 app.UseCors(allowLocalhost);
@@ -44,4 +55,4 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program { }
+public partial class Program { } // Allows us to use WebApplicationFactory for integration tests.

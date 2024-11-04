@@ -1,7 +1,8 @@
 ﻿using Api.Dtos.Dependent;
-using Api.Dtos.Employee;
+using Api.Infrastructure;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Api.Controllers;
@@ -10,24 +11,28 @@ namespace Api.Controllers;
 [Route("api/v1/[controller]")]
 public class DependentsController : ControllerBase
 {
+    private readonly BenefitsDbContext _context;
+
+    public DependentsController(BenefitsDbContext context) => _context = context;
+
     [SwaggerOperation(Summary = "Get dependent by id")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<GetDependentDto>>> Get(int id)
     {
-        var dependent = new GetDependentDto
-        {
-            Id = 1,
-            FirstName = "Spouse",
-            LastName = "Morant",
-            Relationship = Relationship.Spouse,
-            DateOfBirth = new DateTime(1998, 3, 3)
-        };
+        var dependent = await _context.Dependents.FirstOrDefaultAsync(x => x.DependentId == id);
 
-        if (id == 1)
+        if (dependent is not null)
         {
             return new ApiResponse<GetDependentDto>
             {
-                Data = dependent,
+                Data = new GetDependentDto
+                {
+                    Id = dependent.DependentId,
+                    FirstName = dependent.FirstName,
+                    LastName = dependent.LastName,
+                    Relationship = dependent.Relationship,
+                    DateOfBirth = dependent.DateOfBirth
+                },
                 Success = true
             };
         }
@@ -39,46 +44,25 @@ public class DependentsController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<ApiResponse<List<GetDependentDto>>>> GetAll()
     {
-        //task: use a more realistic production approach
-        var dependent = new List<GetDependentDto>
+        var dependents = await _context.Dependents.ToListAsync();
+
+        var dependentsDto = new List<GetDependentDto>();
+
+        foreach (var dependent in dependents)
         {
-            new()
+            dependentsDto.Add(new GetDependentDto
             {
-                Id = 1,
-                FirstName = "Spouse",
-                LastName = "Morant",
-                Relationship = Relationship.Spouse,
-                DateOfBirth = new DateTime(1998, 3, 3)
-            },
-            new()
-            {
-                Id = 2,
-                FirstName = "Child1",
-                LastName = "Morant",
-                Relationship = Relationship.Child,
-                DateOfBirth = new DateTime(2020, 6, 23)
-            },
-            new()
-            {
-                Id = 3,
-                FirstName = "Child2",
-                LastName = "Morant",
-                Relationship = Relationship.Child,
-                DateOfBirth = new DateTime(2021, 5, 18)
-            },
-            new()
-            {
-                Id = 4,
-                FirstName = "DP",
-                LastName = "Jordan",
-                Relationship = Relationship.DomesticPartner,
-                DateOfBirth = new DateTime(1974, 1, 2)
-            }
-        };
+                Id = dependent.DependentId,
+                FirstName = dependent.FirstName,
+                LastName = dependent.LastName,
+                Relationship = dependent.Relationship,
+                DateOfBirth = dependent.DateOfBirth
+            });
+        }
 
         var result = new ApiResponse<List<GetDependentDto>>
         {
-            Data = dependent,
+            Data = dependentsDto,
             Success = true
         };
 

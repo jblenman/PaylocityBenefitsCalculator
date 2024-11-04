@@ -8,7 +8,7 @@ namespace ApiTests;
 public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private HttpClient? _httpClient;
-    private WebApplicationFactory<Program> _factory = new(); // Added to run tests locally.
+    private WebApplicationFactory<Program> _factory = new(); // Added to run tests locally within process.
 
     protected HttpClient HttpClient
     {
@@ -16,7 +16,7 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>, ID
         {
             if (_httpClient == default)
             {
-                _httpClient = _factory.CreateClient(); // No need to spin up application separate from test execution.
+                _httpClient = _factory.CreateClient(); // No need to point to separate host. Tests pass.
             }
 
             return _httpClient;
@@ -28,4 +28,3 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>, ID
         HttpClient.Dispose();
     }
 }
-

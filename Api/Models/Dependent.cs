@@ -1,8 +1,11 @@
-﻿namespace Api.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Api.Models;
 
 public class Dependent
 {
-    public int Id { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.None)] // I want to control ID assignment
+    public int DependentId { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public DateTime DateOfBirth { get; set; }
