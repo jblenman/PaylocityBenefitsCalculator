@@ -2,7 +2,6 @@
 using Api.Infrastructure;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Api.Controllers;
@@ -11,15 +10,15 @@ namespace Api.Controllers;
 [Route("api/v1/[controller]")]
 public class DependentsController : ControllerBase
 {
-    private readonly BenefitsDbContext _context;
+    private readonly IBenefitsRepository _repository;
 
-    public DependentsController(BenefitsDbContext context) => _context = context;
+    public DependentsController(IBenefitsRepository repository) => _repository = repository;
 
     [SwaggerOperation(Summary = "Get dependent by id")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<GetDependentDto>>> Get(int id)
     {
-        var dependent = await _context.Dependents.FirstOrDefaultAsync(x => x.DependentId == id);
+        var dependent = await _repository.GetDependentByIdAsync(id);
 
         if (dependent is not null)
         {
@@ -44,7 +43,7 @@ public class DependentsController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<ApiResponse<List<GetDependentDto>>>> GetAll()
     {
-        var dependents = await _context.Dependents.ToListAsync();
+        var dependents = await _repository.GetAllDependentsAsync();
 
         var dependentsDto = new List<GetDependentDto>();
 

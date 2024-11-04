@@ -4,10 +4,10 @@ namespace Api.Infrastructure;
 
 public static class BenefitsDbContextInitializer
 {
-    public static void Initialize(BenefitsDbContext context)
+    public static async Task Initialize(BenefitsDbContext context)
     {
-        context.Database.EnsureDeleted();  // remove old
-        context.Database.EnsureCreated();  // create new
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
 
         var employees = new List<Employee>
         {
@@ -42,7 +42,7 @@ public static class BenefitsDbContextInitializer
             context.Employees.Add(employee);
         }
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         var dependents = new List<Dependent>
         {
@@ -89,6 +89,6 @@ public static class BenefitsDbContextInitializer
             context.Dependents.Add(dependent);
         }
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

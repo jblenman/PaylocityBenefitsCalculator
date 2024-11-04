@@ -12,7 +12,7 @@ namespace Api.Controllers;
 [Route("api/v1/[controller]")]
 public class EmployeesController : ControllerBase
 {
-    private readonly BenefitsDbContext _context;
+    private readonly IBenefitsRepository _repository;
 
     private const decimal PaychecksPerYear = 26m;
     private const decimal MonthlyBenefitsBaseCost = 1000m;
@@ -22,15 +22,13 @@ public class EmployeesController : ControllerBase
     private const decimal HighIncomePercentagePremium = 0.02m;
     private const decimal HighIncomeThreshold = 80000m;
 
-    public EmployeesController(BenefitsDbContext context) => _context = context;
+    public EmployeesController(IBenefitsRepository repository) => _repository = repository;
 
     [SwaggerOperation(Summary = "Get employee by id")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<GetEmployeeDto>>> Get(int id)
     {
-        var employee = await _context.Employees
-            .Include(e => e.Dependents)
-            .FirstOrDefaultAsync(e => e.EmployeeId == id);
+        var employee = await _repository.GetEmployeeByIdAsync(id);
 
         if (employee is not null)
         {
@@ -100,8 +98,7 @@ public class EmployeesController : ControllerBase
     public async Task<ActionResult<ApiResponse<List<GetEmployeeDto>>>> GetAll()
     {
         //task: use a more realistic production approach
-        // update: using efcore, created dbContext to access localdb
-        var employees = await _context.Employees.Include(e => e.Dependents).ToListAsync();
+        var employees = await _repository.GetAllEmployeesAsync();
 
         var employeeDtos = new List<GetEmployeeDto>();
 
