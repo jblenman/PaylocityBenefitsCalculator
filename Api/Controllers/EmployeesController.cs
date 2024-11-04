@@ -32,60 +32,9 @@ public class EmployeesController : ControllerBase
 
         if (employee is not null)
         {
-            var dependents = employee.Dependents;
-            var dependentsDto = new List<GetDependentDto>();
-
-            var monthlyDependentCost = 0.0m;
-
-            if (dependents.Any())
-            {
-                foreach (var dependent in dependents)
-                {
-                    int age = GetAge(dependent.DateOfBirth);
-                    bool isElder = age > ElderDependentThreshold;
-                    decimal additionalCost = isElder ? MonthlyElderDependentPremium : 0;
-                    monthlyDependentCost += MonthlyDependentBaseCost + additionalCost;
-
-                    dependentsDto.Add(new GetDependentDto
-                    {
-                        Id = dependent.DependentId,
-                        FirstName = dependent.FirstName,
-                        LastName = dependent.LastName,
-                        Relationship = dependent.Relationship,
-                        DateOfBirth = dependent.DateOfBirth
-                    });
-                }
-            }
-
-            var grossPaycheckAmount = employee.Salary / PaychecksPerYear;
-
-            var monthlyBenefitsCost = MonthlyBenefitsBaseCost + monthlyDependentCost;
-
-            var isHighIncome = employee.Salary > HighIncomeThreshold;
-            var highIncomePremium = isHighIncome ? employee.Salary * HighIncomePercentagePremium : 0m;
-
-            var annualBenefitsCost = (monthlyBenefitsCost * 12m) + highIncomePremium;
-
-            var benefitCostPerPaycheck = annualBenefitsCost / PaychecksPerYear;
-
-            var netPaycheckAmount = grossPaycheckAmount - benefitCostPerPaycheck;
-
-            var employeeDto = new GetEmployeeDto
-            {
-                Id = employee.EmployeeId,
-                FirstName = employee.FirstName,
-                LastName = employee.LastName,
-                Salary = employee.Salary,
-                PaycheckGrossAmount = grossPaycheckAmount,
-                PaycheckBenefitsCost = benefitCostPerPaycheck,
-                PaycheckNetAmount = netPaycheckAmount,
-                DateOfBirth = employee.DateOfBirth,
-                Dependents = dependentsDto
-            };
-
             return new ApiResponse<GetEmployeeDto>
             {
-                Data = employeeDto,
+                Data = await MapEmployeeToGetEmployeeDto(employee),
                 Success = true
             };
         }
@@ -104,34 +53,7 @@ public class EmployeesController : ControllerBase
 
         foreach (var employee in employees)
         {
-            var dependents = employee.Dependents;
-
-            var dependentsDto = new List<GetDependentDto>();
-
-            if (dependents.Any())
-            {
-                foreach (var dependent in dependents)
-                {
-                    dependentsDto.Add(new GetDependentDto
-                    {
-                        Id = dependent.DependentId,
-                        FirstName = dependent.FirstName,
-                        LastName = dependent.LastName,
-                        Relationship = dependent.Relationship,
-                        DateOfBirth = dependent.DateOfBirth
-                    });
-                }
-            }
-
-            employeeDtos.Add(new GetEmployeeDto
-            {
-                Id = employee.EmployeeId,
-                FirstName = employee.FirstName,
-                LastName = employee.LastName,
-                Salary = employee.Salary,
-                DateOfBirth = employee.DateOfBirth,
-                Dependents = dependentsDto
-            });
+            employeeDtos.Add(await MapEmployeeToGetEmployeeDto(employee));
         }
 
         var result = new ApiResponse<List<GetEmployeeDto>>
@@ -144,4 +66,58 @@ public class EmployeesController : ControllerBase
     }
 
     private int GetAge(DateTime dob) => (int)Math.Floor((DateTime.Now - dob).TotalDays / 365.25D);
+
+    private async Task<GetEmployeeDto> MapEmployeeToGetEmployeeDto(Employee employee)
+    {
+        var dependents = employee.Dependents;
+        var dependentsDto = new List<GetDependentDto>();
+
+        var monthlyDependentCost = 0.0m;
+
+        if (dependents.Any())
+        {
+            foreach (var dependent in dependents)
+            {
+                int age = GetAge(dependent.DateOfBirth);
+                bool isElder = age > ElderDependentThreshold;
+                decimal additionalCost = isElder ? MonthlyElderDependentPremium : 0;
+                monthlyDependentCost += MonthlyDependentBaseCost + additionalCost;
+
+                dependentsDto.Add(new GetDependentDto
+                {
+                    Id = dependent.DependentId,
+                    FirstName = dependent.FirstName,
+                    LastName = dependent.LastName,
+                    Relationship = dependent.Relationship,
+                    DateOfBirth = dependent.DateOfBirth
+                });
+            }
+        }
+
+        var grossPaycheckAmount = employee.Salary / PaychecksPerYear;
+
+        var monthlyBenefitsCost = MonthlyBenefitsBaseCost + monthlyDependentCost;
+
+        var isHighIncome = employee.Salary > HighIncomeThreshold;
+        var highIncomePremium = isHighIncome ? employee.Salary * HighIncomePercentagePremium : 0m;
+
+        var annualBenefitsCost = (monthlyBenefitsCost * 12m) + highIncomePremium;
+
+        var benefitCostPerPaycheck = annualBenefitsCost / PaychecksPerYear;
+
+        var netPaycheckAmount = grossPaycheckAmount - benefitCostPerPaycheck;
+
+        return new GetEmployeeDto
+        {
+            Id = employee.EmployeeId,
+            FirstName = employee.FirstName,
+            LastName = employee.LastName,
+            Salary = employee.Salary,
+            PaycheckGrossAmount = grossPaycheckAmount,
+            PaycheckBenefitsCost = benefitCostPerPaycheck,
+            PaycheckNetAmount = netPaycheckAmount,
+            DateOfBirth = employee.DateOfBirth,
+            Dependents = dependentsDto
+        };
+    }
 }

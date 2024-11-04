@@ -23,6 +23,9 @@ public class EmployeeIntegrationTests : IntegrationTest
                 FirstName = "LeBron",
                 LastName = "James",
                 Salary = 75420.99m,
+                PaycheckGrossAmount = 75420.99m / 26m,
+                PaycheckBenefitsCost = 1000m * 12m / 26m,
+                PaycheckNetAmount = (75420.99m / 26m) - (1000m * 12m / 26m),
                 DateOfBirth = new DateTime(1984, 12, 30)
             },
             new()
@@ -31,6 +34,9 @@ public class EmployeeIntegrationTests : IntegrationTest
                 FirstName = "Ja",
                 LastName = "Morant",
                 Salary = 92365.22m,
+                PaycheckGrossAmount = 92365.22m / 26m,
+                PaycheckBenefitsCost = ((3m * 600m * 12m) + (1000m * 12m) + (92365.22m * 0.02m)) / 26,
+                PaycheckNetAmount = (92365.22m / 26m) - (((3m * 600m * 12m) + (1000m * 12m) + (92365.22m * 0.02m)) / 26),
                 DateOfBirth = new DateTime(1999, 8, 10),
                 Dependents = new List<GetDependentDto>
                 {
@@ -66,6 +72,9 @@ public class EmployeeIntegrationTests : IntegrationTest
                 FirstName = "Michael",
                 LastName = "Jordan",
                 Salary = 143211.12m,
+                PaycheckGrossAmount = 143211.12m / 26m,
+                PaycheckBenefitsCost = ((600m * 12m) + (1000m * 12m) + (143211.12m * 0.02m)) / 26,
+                PaycheckNetAmount = (143211.12m / 26m) - (((600m * 12m) + (1000m * 12m) + (143211.12m * 0.02m)) / 26m),
                 DateOfBirth = new DateTime(1963, 2, 17),
                 Dependents = new List<GetDependentDto>
                 {
