@@ -101,7 +101,42 @@ public class EmployeeIntegrationTests : IntegrationTest
         };
         await response.ShouldReturn(HttpStatusCode.OK, employee);
     }
-    
+
+    [Fact]
+    //task: make test pass
+    public async Task WhenAskedForAHighIncomeEmployee_ShouldReturnCorrectEmployeeWithCorrectPaycheckCalculations()
+    {
+        var response = await HttpClient.GetAsync("/api/v1/employees/3");
+        var salary = 143211.12m;
+        var paycheckGrossAmount = salary / 26m;
+        var empAnnualBenefitsCost = (1000m * 12m) + (salary * 0.02m);
+        var depAnnualBenefitsCost = 600m * 12m;
+        var paycheckBenefitsCost = (empAnnualBenefitsCost + depAnnualBenefitsCost) / 26m;
+        var employee = new GetEmployeeDto
+        {
+            Id = 3,
+            FirstName = "Michael",
+            LastName = "Jordan",
+            Salary = salary,
+            PaycheckGrossAmount = paycheckGrossAmount,
+            PaycheckBenefitsCost = paycheckBenefitsCost,
+            PaycheckNetAmount = paycheckGrossAmount - paycheckBenefitsCost,
+            DateOfBirth = new DateTime(1963, 2, 17),
+            Dependents = new List<GetDependentDto>
+            {
+                new()
+                {
+                    Id = 4,
+                    FirstName = "DP",
+                    LastName = "Jordan",
+                    Relationship = Relationship.DomesticPartner,
+                    DateOfBirth = new DateTime(1974, 1, 2)
+                }
+            }
+        };
+        await response.ShouldReturn(HttpStatusCode.OK, employee);
+    }
+
     [Fact]
     //task: make test pass
     public async Task WhenAskedForANonexistentEmployee_ShouldReturn404()

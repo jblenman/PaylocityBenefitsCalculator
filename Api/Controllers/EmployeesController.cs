@@ -66,9 +66,9 @@ public class EmployeesController : ControllerBase
             var isHighIncome = employee.Salary > HighIncomeThreshold;
             var highIncomePremium = isHighIncome ? employee.Salary * HighIncomePercentagePremium : 0m;
 
-            var yearlyBenefitsCost = monthlyBenefitsCost * 12m + highIncomePremium;
+            var annualBenefitsCost = (monthlyBenefitsCost * 12m) + highIncomePremium;
 
-            var benefitCostPerPaycheck = yearlyBenefitsCost / PaychecksPerYear;
+            var benefitCostPerPaycheck = annualBenefitsCost / PaychecksPerYear;
 
             var netPaycheckAmount = grossPaycheckAmount - benefitCostPerPaycheck;
 
