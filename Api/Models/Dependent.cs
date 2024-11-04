@@ -4,7 +4,7 @@ namespace Api.Models;
 
 public class Dependent
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.None)] // I want to control ID assignment
+    [DatabaseGenerated(DatabaseGeneratedOption.None)] // I want to control ID assignment to seed db
     public int DependentId { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }

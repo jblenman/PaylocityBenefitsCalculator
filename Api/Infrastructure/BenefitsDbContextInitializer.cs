@@ -6,12 +6,8 @@ public static class BenefitsDbContextInitializer
 {
     public static void Initialize(BenefitsDbContext context)
     {
-        context.Database.EnsureCreated();
-
-        if (context.Employees.Any())
-        {
-            return;
-        }
+        context.Database.EnsureDeleted();  // remove old
+        context.Database.EnsureCreated();  // create new
 
         var employees = new List<Employee>
         {
